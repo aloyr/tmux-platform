@@ -16,6 +16,7 @@ def make_menu(projects: list[list[str]])-> None:
         cmd.append(project[1])
         cmd.append('')
         run_param = "run -b 'printf " + project[0] + " | pbcopy'"
+        #run_param = "send-keys " + project[0]
         cmd.append(run_param)
 
     p = Popen(cmd, stdout=PIPE)
