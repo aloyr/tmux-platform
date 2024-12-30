@@ -22,7 +22,7 @@ def make_menu(projects: list[list[str]])-> None:
     p = Popen(cmd, stdout=PIPE)
     (data, err) = p.communicate()
 
-def login()-> bool:
+def check_login()-> bool:
     Popen(['tmux','display-message','determining login status'], stdout=PIPE).communicate()
     (stdout, stderr) = Popen(['platform', 'auth:info'], stdout=PIPE, stderr=PIPE).communicate()
     if len(stderr) > 0:
@@ -30,14 +30,23 @@ def login()-> bool:
         return False
     return True
 
+def check_platform()-> bool:
+    p = Popen(['which', 'platform'], stdout=PIPE, stderr=PIPE)
+    (stdout, stderr) = p.communicate()
+    if not p.returncode == 0:
+        return False
+    return True
 
 def main()-> None:
-    if login():
-        Popen(['tmux','display-message','loading project list'], stdout=PIPE).communicate()
-        data = get_projects()
-        make_menu(data)
-        (selection, err) = Popen(['pbpaste'], stdout=PIPE).communicate()
-        Popen(['tmux','display-message','-d', '0', 'project id: ' + selection.decode() + ' copied to pasteboard'], stdout=PIPE).communicate()
+    if not check_login():
+        return
+    if not check_platform():
+        return
+    Popen(['tmux','display-message','loading project list'], stdout=PIPE).communicate()
+    data = get_projects()
+    make_menu(data)
+    (selection, err) = Popen(['pbpaste'], stdout=PIPE).communicate()
+    Popen(['tmux','display-message','-d', '0', 'project id: ' + selection.decode() + ' copied to pasteboard'], stdout=PIPE).communicate()
 
 if __name__ == '__main__':
     main()
